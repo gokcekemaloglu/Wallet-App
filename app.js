@@ -32,7 +32,7 @@ const harcamaBody = document.getElementById("harcama-body")
 ekleFormu.addEventListener("submit", (e) => {
     e.preventDefault()
     gelirler = gelirler + Number(gelirInput.value)
-    console.log(gelirler)
+    // console.log(gelirler)
     ekleFormu.reset()
     localStorage.setItem("Gelirler", gelirler)
     gelirinizTd.textContent = new Intl.NumberFormat().format(gelirler)
@@ -64,7 +64,7 @@ harcamaFormu.addEventListener("submit", (e) => {
     }
     
     harcamaListesi.push(yeniHarcama)
-    console.log(harcamaListesi);
+    // console.log(harcamaListesi);
     harcamaFormu.reset()
     tarihInput.valueAsDate = new Date()
     localStorage.setItem("harcamaListesi", JSON.stringify(harcamaListesi))
@@ -123,7 +123,7 @@ const hesapla = () =>{
 //^ trascan'a basılınca satır silme
 
 harcamaBody.addEventListener("click", (e) => {
-    if (e.target.contains("fa-trash-can")) {
+    if (e.target.classList.contains("fa-trash-can")) {
         e.target.parentElement.parentElement.remove()
 
         const id = e.target.id
@@ -144,9 +144,7 @@ temizleBtn.addEventListener("click", () => {
         harcamaBody.innerHTML = ""
         localStorage.removeItem("gelirler")
         localStorage.removeItem("harcamalar")
+        hesapla()
     }
 })
-
-
-
 

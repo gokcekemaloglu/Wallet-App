@@ -3,6 +3,9 @@
 const ekleBtn = document.getElementById("ekle-btn")
 const gelirInput = document.getElementById("gelir-input")
 const ekleFormu = document.getElementById("ekle-formu")
+const temizleBtn = document.getElementById("temizle-btn")
+
+//^ Hesap Tablosu
 
 const gelirinizTd = document.getElementById("geliriniz")
 const giderinizTd = document.getElementById("gideriniz")
@@ -24,7 +27,7 @@ const harcamaInput = document.getElementById("miktar")
 
 const harcamaBody = document.getElementById("harcama-body")
 
-//? Ekle Formu
+//? Ekle Formu Gelirler
 
 ekleFormu.addEventListener("submit", (e) => {
     e.preventDefault()
@@ -34,15 +37,21 @@ ekleFormu.addEventListener("submit", (e) => {
     localStorage.setItem("Gelirler", gelirler)
     gelirinizTd.textContent = new Intl.NumberFormat().format(gelirler)
 
+    hesapla()
+
 })
 
+//^ Windows update
+
 window.addEventListener("load",()=>{
-    gelirler = Number(localStorage.getItem("gelirler")) || 0
-    gelirinizTd.textContent = new Intl.NumberFormat().format(gelirler)
+    gelirler = Number(localStorage.getItem("gelirler")) || 0    
     tarihInput.valueAsDate = new Date()
-    harcamaListesi = JSON.parse(localStorage.getItem("harcamalar")) || 0
+    harcamaListesi = JSON.parse(localStorage.getItem("harcamalar")) || []
     harcamaListesi.forEach((harcama) => harcamaYaz(harcama))
+    hesapla()
 })
+
+//^ Harcama Girişi
 
 harcamaFormu.addEventListener("submit", (e) => {
     e.preventDefault() //reload önlemek için
@@ -63,6 +72,8 @@ harcamaFormu.addEventListener("submit", (e) => {
     hesapla()
 })
 
+//^ Harcamanın DOM'a yazılması
+
 const harcamaYaz = ({id, tarih, miktar, alan}) => {
 
     const tr = document.createElement("tr")
@@ -77,8 +88,9 @@ const harcamaYaz = ({id, tarih, miktar, alan}) => {
         const td = document.createElement("td")
         const i = document.createElement("i")
         i.id = id
-        i.classList.add("fa-solid", "fa-trash-can", "text-danger")
+        i.className = "fa-solid fa-trash-can text-danger"
         i.type = "button"
+        td.appendChild(i)
         return td
     }
     tr.append(
@@ -93,10 +105,47 @@ const harcamaYaz = ({id, tarih, miktar, alan}) => {
 
 }
 
+//^ DOM'daki gelir gider hesapları
+
 const hesapla = () =>{
     const giderler = harcamaListesi.reduce((toplam, harcama) => toplam + Number(harcama.miktar), 0)
+
     giderinizTd.textContent = new Intl.NumberFormat().format(giderler)
+    gelirinizTd.textContent = new Intl.NumberFormat().format(gelirler)
+    kalanTd.textContent = new Intl.NumberFormat().format(gelirler - giderler)
+
+    const borclu = gelirler - giderler < 0
+
+    kalanTd.classList.toggle("text-danger", borclu)
+    document.getElementById("kalanTh").classList.toggle("text-danger", borclu)
 }
+
+//^ trascan'a basılınca satır silme
+
+harcamaBody.addEventListener("click", (e) => {
+    if (e.target.contains("fa-trash-can")) {
+        e.target.parentElement.parentElement.remove()
+
+        const id = e.target.id
+        harcamaListesi = harcamaListesi.filter((harcama)=> harcama.id !== id)
+
+        localStorage.setItem("harcamalar", JSON.stringify(harcamaListesi))
+        
+        hesapla()
+    }
+})
+
+//^ Bilgileri temizleme
+
+temizleBtn.addEventListener("click", () => {
+    if (confirm("Tüm bilgileri silmek istediğinize emin misiniz? ")) {
+        harcamaListesi = []
+        gelirler = 0 
+        harcamaBody.innerHTML = ""
+        localStorage.removeItem("gelirler")
+        localStorage.removeItem("harcamalar")
+    }
+})
 
 
 

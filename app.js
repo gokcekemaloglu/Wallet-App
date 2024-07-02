@@ -39,6 +39,9 @@ ekleFormu.addEventListener("submit", (e) => {
 window.addEventListener("load",()=>{
     gelirler = Number(localStorage.getItem("gelirler")) || 0
     gelirinizTd.textContent = new Intl.NumberFormat().format(gelirler)
+    tarihInput.valueAsDate = new Date()
+    harcamaListesi = JSON.parse(localStorage.getItem("harcamalar")) || 0
+    harcamaListesi.forEach((harcama) => harcamaYaz(harcama))
 })
 
 harcamaFormu.addEventListener("submit", (e) => {
@@ -57,18 +60,10 @@ harcamaFormu.addEventListener("submit", (e) => {
     tarihInput.valueAsDate = new Date()
     localStorage.setItem("harcamaListesi", JSON.stringify(harcamaListesi))
     harcamaYaz(yeniHarcama)
+    hesapla()
 })
 
 const harcamaYaz = ({id, tarih, miktar, alan}) => {
-
-    // harcamaBody.innerHTML += `
-    // <tr>
-    //     <td>${tarih}</td>
-    //     <td>${alan}</td>
-    //     <td>${miktar}</td>
-    //     <td><i id=${id} class="fa-solid fa-trash-can text-danger"  type="button"></i></td>
-    // </tr>
-    // `
 
     const tr = document.createElement("tr")
 
@@ -84,7 +79,6 @@ const harcamaYaz = ({id, tarih, miktar, alan}) => {
         i.id = id
         i.classList.add("fa-solid", "fa-trash-can", "text-danger")
         i.type = "button"
-        td.appendChild(i)
         return td
     }
     tr.append(
@@ -94,7 +88,16 @@ const harcamaYaz = ({id, tarih, miktar, alan}) => {
         createLastTd()
     )
 
-    harcamaBody.append(tr)
+    // harcamaBody.append(tr) // sona ekler
+    harcamaBody.prepend(tr) // üste ekler
 
 }
+
+const hesapla = () =>{
+    const giderler = harcamaListesi.reduce((toplam, harcama) => toplam + Number(harcama.miktar), 0)
+    giderinizTd.textContent = new Intl.NumberFormat().format(giderler)
+}
+
+
+
 
